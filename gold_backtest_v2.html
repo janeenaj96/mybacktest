@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>금 김치프리미엄 백테스팅 도구</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .card-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .transactions-table {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            overflow-x: auto;
+        }
+
+        .transactions-table h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background: #f0f0f0;
+        }
+
+        .buy {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .sell {
+            color: #1976d2;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 금 김치프리미엄 백테스팅</h1>
+            <p>국내 금 시장의 김치프리미엄을 활용한 매매 전략 시뮬레이션</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <h2 style="margin-bottom: 20px; color: #333;">백테스팅 설정</h2>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>시작 날짜</label>
+                        <input type="date" id="startDate" value="2023-01-01">
+                    </div>
+                    <div class="input-group">
+                        <label>종료 날짜</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>거래 단위</label>
+                    <select id="unitType">
+                        <option value="1kg">1kg 단위</option>
+                        <option value="1g">1g 단위</option>
+                    </select>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>매수 김치프리미엄 (%) - 이하일 때 매수</label>
+                        <input type="number" id="buyPremium" value="5" step="0.1" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label>매도 김치프리미엄 (%) - 이상일 때 매도</label>
+                        <input type="number" id="sellPremium" value="10" step="0.1" min="0">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>초기 투자금 (원)</label>
+                    <input type="number" id="initialCapital" value="10000000" step="100000">
+                </div>
+
+                <button class="btn" onclick="runBacktest()">백테스팅 시작</button>
+
+                <div class="error" id="errorMessage"></div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>데이터를 생성하고 백테스팅을 수행중입니다...</p>
+            </div>
+
+            <div class="results-section" id="results">
+                <div class="summary-cards">
+                    <div class="card">
+                        <div class="card-label">총 수익률</div>
+                        <div class="card-value" id="totalReturn">0%</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">총 거래 횟수</div>
+                        <div class="card-value" id="totalTrades">0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">승률</div>
+                        <div class="card-value" id="winRate">0%</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">최종 자산</div>
+                        <div class="card-value" id="finalCapital">0원</div>
+                    </div>
+                </div>
+
+                <div class="transactions-table">
+                    <h3>거래 내역</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>유형</th>
+                                <th>김치프리미엄</th>
+                                <th>국내 가격</th>
+                                <th>수량</th>
+                                <th>거래금액</th>
+                                <th>잔고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 오늘 날짜를 종료 날짜 기본값으로 설정
+        document.getElementById('endDate').valueAsDate = new Date();
+
+        // 시뮬레이션 데이터 생성 함수
+        function generateGoldData(startDate, endDate) {
+            const data = [];
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            let currentDate = new Date(start);
+            let basePrice = 80000; // 국내 금 1g 기준 가격
+            let internationalPrice = 75000; // 국제 금 1g 기준 가격
+            
+            while (currentDate <= end) {
+                // 주말 제외
+                if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                    // 가격 변동 시뮬레이션 (랜덤워크)
+                    basePrice += (Math.random() - 0.5) * 1000;
+                    internationalPrice += (Math.random() - 0.5) * 800;
+                    
+                    // 김치프리미엄 계산
+                    const premium = ((basePrice - internationalPrice) / internationalPrice) * 100;
+                    
+                    data.push({
+                        date: new Date(currentDate),
+                        domesticPrice: Math.round(basePrice),
+                        internationalPrice: Math.round(internationalPrice),
+                        premium: parseFloat(premium.toFixed(2))
+                    });
+                }
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return data;
+        }
+
+        // 백테스팅 실행 함수
+        function runBacktest() {
+            // 입력값 가져오기
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const unitType = document.getElementById('unitType').value;
+            const buyPremium = parseFloat(document.getElementById('buyPremium').value);
+            const sellPremium = parseFloat(document.getElementById('sellPremium').value);
+            const initialCapital = parseFloat(document.getElementById('initialCapital').value);
+
+            // 유효성 검사
+            if (!startDate || !endDate) {
+                showError('시작 날짜와 종료 날짜를 입력해주세요.');
+                return;
+            }
+
+            if (new Date(startDate) >= new Date(endDate)) {
+                showError('종료 날짜는 시작 날짜보다 이후여야 합니다.');
+                return;
+            }
+
+            if (buyPremium >= sellPremium) {
+                showError('매도 김치프리미엄은 매수 김치프리미엄보다 커야 합니다.');
+                return;
+            }
+
+            // 로딩 표시
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('errorMessage').classList.remove('active');
+
+            // 비동기 처리를 위한 setTimeout
+            setTimeout(() => {
+                try {
+                    // 데이터 생성
+                    const goldData = generateGoldData(startDate, endDate);
+
+                    // 백테스팅 실행
+                    const results = performBacktest(goldData, buyPremium, sellPremium, initialCapital, unitType);
+
+                    // 결과 표시
+                    displayResults(results);
+
+                    document.getElementById('loading').classList.remove('active');
+                    document.getElementById('results').classList.add('active');
+                } catch (error) {
+                    showError('백테스팅 중 오류가 발생했습니다: ' + error.message);
+                    document.getElementById('loading').classList.remove('active');
+                }
+            }, 500);
+        }
+
+        // 백테스팅 로직
+        function performBacktest(data, buyPremium, sellPremium, initialCapital, unitType) {
+            let cash = initialCapital;
+            let holdings = 0; // 보유 금 수량 (g 단위)
+            let transactions = [];
+            let position = null; // 현재 포지션 (매수가 정보)
+
+            const unitMultiplier = unitType === '1kg' ? 1000 : 1;
+
+            for (let i = 0; i < data.length; i++) {
+                const today = data[i];
+
+                // 매수 조건: 김치프리미엄이 매수 기준 이하이고, 포지션이 없을 때
+                if (today.premium <= buyPremium && holdings === 0 && cash > 0) {
+                    const pricePerUnit = today.domesticPrice * unitMultiplier;
+                    const quantity = Math.floor(cash / pricePerUnit);
+
+                    if (quantity > 0) {
+                        const totalCost = quantity * pricePerUnit;
+                        holdings = quantity * unitMultiplier;
+                        cash -= totalCost;
+
+                        position = {
+                            buyPrice: today.domesticPrice,
+                            buyPremium: today.premium
+                        };
+
+                        transactions.push({
+                            date: today.date,
+                            type: 'buy',
+                            premium: today.premium,
+                            price: today.domesticPrice,
+                            quantity: quantity,
+                            unit: unitType,
+                            amount: totalCost,
+                            cash: cash
+                        });
+                    }
+                }
+                // 매도 조건: 김치프리미엄이 매도 기준 이상이고, 포지션이 있을 때
+                else if (today.premium >= sellPremium && holdings > 0) {
+                    const units = holdings / unitMultiplier;
+                    const pricePerUnit = today.domesticPrice * unitMultiplier;
+                    const totalRevenue = units * pricePerUnit;
+
+                    cash += totalRevenue;
+                    holdings = 0;
+
+                    transactions.push({
+                        date: today.date,
+                        type: 'sell',
+                        premium: today.premium,
+                        price: today.domesticPrice,
+                        quantity: units,
+                        unit: unitType,
+                        amount: totalRevenue,
+                        cash: cash,
+                        profit: totalRevenue - (transactions[transactions.length - 1].amount)
+                    });
+
+                    position = null;
+                }
+            }
+
+            // 마지막 포지션이 남아있으면 종료일 가격으로 청산
+            if (holdings > 0) {
+                const lastDay = data[data.length - 1];
+                const units = holdings / unitMultiplier;
+                const pricePerUnit = lastDay.domesticPrice * unitMultiplier;
+                const totalRevenue = units * pricePerUnit;
+
+                cash += totalRevenue;
+
+                transactions.push({
+                    date: lastDay.date,
+                    type: 'sell (청산)',
+                    premium: lastDay.premium,
+                    price: lastDay.domesticPrice,
+                    quantity: units,
+                    unit: unitType,
+                    amount: totalRevenue,
+                    cash: cash,
+                    profit: totalRevenue - (transactions[transactions.length - 1].amount)
+                });
+
+                holdings = 0;
+            }
+
+            // 통계 계산
+            const totalReturn = ((cash - initialCapital) / initialCapital) * 100;
+            const sellTransactions = transactions.filter(t => t.type.includes('sell'));
+            const winningTrades = sellTransactions.filter(t => t.profit && t.profit > 0).length;
+            const winRate = sellTransactions.length > 0 ? (winningTrades / sellTransactions.length) * 100 : 0;
+
+            return {
+                totalReturn: totalReturn,
+                totalTrades: transactions.length,
+                winRate: winRate,
+                finalCapital: cash,
+                transactions: transactions
+            };
+        }
+
+        // 결과 표시
+        function displayResults(results) {
+            document.getElementById('totalReturn').textContent = results.totalReturn.toFixed(2) + '%';
+            document.getElementById('totalTrades').textContent = results.totalTrades;
+            document.getElementById('winRate').textContent = results.winRate.toFixed(1) + '%';
+            document.getElementById('finalCapital').textContent = results.finalCapital.toLocaleString() + '원';
+
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+
+            results.transactions.forEach(tx => {
+                const row = document.createElement('tr');
+                const profitClass = tx.profit > 0 ? 'profit' : (tx.profit < 0 ? 'loss' : '');
+                row.innerHTML = `
+                    <td>${tx.date.toLocaleDateString('ko-KR')}</td>
+                    <td class="${tx.type.includes('buy') ? 'buy' : 'sell'}">${tx.type.includes('buy') ? '매수' : '매도'}</td>
+                    <td>${tx.premium.toFixed(2)}%</td>
+                    <td>${tx.price.toLocaleString()}원/g</td>
+                    <td>${tx.quantity.toFixed(3)} ${tx.unit}</td>
+                    <td>${tx.amount.toLocaleString()}원</td>
+                    <td class="${profitClass}">${tx.profit ? tx.profit.toLocaleString() + '원' : '-'}</td>
+                    <td>${tx.cash.toLocaleString()}원</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 에러 표시
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+        }
+    </script>
+</body>
+</html> 
+<!-- <script>
+=> {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${tx.date.toLocaleDateString('ko-KR')}</td>
+                    <td class="${tx.type.includes('buy') ? 'buy' : 'sell'}">${tx.type.includes('buy') ? '매수' : '매도'}</td>
+                    <td>${tx.premium.toFixed(2)}%</td>
+                    <td>${tx.price.toLocaleString()}원/g</td>
+                    <td>${tx.quantity.toFixed(3)} ${tx.unit}</td>
+                    <td>${tx.amount.toLocaleString()}원</td>
+                    <td>${tx.cash.toLocaleString()}원</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 에러 표시
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+        }
+    </script> -->
+</body>
+</html>
