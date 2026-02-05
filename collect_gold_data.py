@@ -11,11 +11,11 @@ from datetime import datetime, timedelta
 
 # ==================== 설정 영역 ====================
 # ⚠️ 여기에 발급받은 API 키를 입력하세요!
-EXIM_API_KEY = "여기에_발급받은_API_키_입력"  # 한국수출입은행 환율 API 키
-KRX_API_KEY = "여기에_발급받은_KRX_API_키_입력"  # KRX OpenAPI 인증키
+EXIM_API_KEY = "LadS1IpKN2DQynQ4jIn9KcqSXBSpg21X"  # 한국수출입은행 환율 API 키
+KRX_API_KEY = "A565FC8AB3A94EFA8D55C3AFD888B58DA452D41E"  # KRX OpenAPI 인증키(10년01월04일~) 
 
 # 데이터 수집 기간 설정
-START_DATE = "2023-01-01"
+START_DATE = "2010-01-04"
 END_DATE = datetime.now().strftime("%Y-%m-%d")
 
 # KRX 금 시세 데이터 사용 설정
